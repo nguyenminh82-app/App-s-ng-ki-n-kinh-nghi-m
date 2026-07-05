@@ -1,0 +1,58 @@
+
+<div class="min-h-screen bg-gray-100 text-gray-800">
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm11.707 6.293a1 1 0 01-1.414 1.414L11 9.414V14a1 1 0 11-2 0V9.414l-2.293 2.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4z" clip-rule="evenodd" />
+        </svg>
+        <h1 class="text-2xl font-bold text-gray-800">SKKN Reviewer</h1>
+      </div>
+      <nav class="flex items-center space-x-4">
+        <button (click)="navigateTo('input')" [class.font-bold]="currentPage() === 'input'" [class.text-blue-600]="currentPage() === 'input'" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors">
+          Nhập liệu
+        </button>
+        <button (click)="navigateTo('knowledge-base')" [class.font-bold]="currentPage() === 'knowledge-base'" [class.text-blue-600]="currentPage() === 'knowledge-base'" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors">
+          Kho tri thức
+        </button>
+        @if (analysisResult()) {
+          <button (click)="navigateTo('results')" [class.font-bold]="currentPage() === 'results'" [class.text-blue-600]="currentPage() === 'results'" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors">
+            Kết quả
+          </button>
+        }
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center h-96 bg-white rounded-lg shadow">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        <p class="mt-4 text-lg text-gray-600">AI đang phân tích, vui lòng chờ trong giây lát...</p>
+      </div>
+    } @else {
+      @if (error()) {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+          <strong class="font-bold">Lỗi!</strong>
+          <span class="block sm:inline">{{ error() }}</span>
+        </div>
+      }
+
+      @switch (currentPage()) {
+        @case ('input') {
+          <app-input-form (analyze)="onAnalyzeRequest($event)" />
+        }
+        @case ('knowledge-base') {
+          <app-knowledge-base />
+        }
+        @case ('results') {
+          @if (analysisResult(); as result) {
+            <app-results [result]="result" [originalFileName]="originalFileName()" [field]="selectedField()" />
+          } @else {
+            <p>Không có kết quả để hiển thị.</p>
+          }
+        }
+      }
+    }
+  </main>
+</div>

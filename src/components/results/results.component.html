@@ -1,0 +1,141 @@
+
+<div class="space-y-8">
+    <!-- Header and Actions -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-900">Kết quả Phân tích SKKN</h2>
+            <p class="mt-1 text-md text-gray-600">{{ fieldDescription() }}</p>
+        </div>
+        <div class="flex space-x-3">
+             <button (click)="exportResults()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Xuất ra .DOCX
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+            <h3 class="text-sm font-medium text-gray-500">ĐIỂM TỔNG</h3>
+            <p class="mt-1 text-5xl font-bold text-blue-600">{{ result().diemTong.toFixed(2) }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+            <h3 class="text-sm font-medium text-gray-500">XẾP LOẠI</h3>
+            <p class="mt-2 text-3xl font-semibold">
+                <span [class]="getRatingClass(result().xepLoai)" class="px-4 py-1 rounded-full">{{ result().xepLoai }}</span>
+            </p>
+        </div>
+        <div class="md:col-span-1 bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-sm font-medium text-gray-500 text-center">BIỂU ĐỒ NĂNG LỰC</h3>
+            <div class="relative h-48 mt-2">
+                <canvas #radarChart></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- General Comments -->
+    <div class="bg-white p-6 rounded-xl shadow-lg">
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Nhận xét chung của Giám khảo AI</h3>
+      <p class="text-gray-700 leading-relaxed">{{ result().nhanXetChung }}</p>
+    </div>
+
+    <!-- Detailed Feedback Table -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <h3 class="text-xl font-bold text-gray-900 p-6">Bảng Đánh giá theo Tiêu chí của Hội đồng</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">Tiêu chí</th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Điểm</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Yếu/Lỗi dễ bị trừ điểm</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Phân tích (Góc nhìn Giám khảo)</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Gợi ý sửa đổi / nâng cấp</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @for (item of result().bangTieuChi; track item.tieuChi) {
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-semibold text-gray-900">{{ item.tieuChi }}</div>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-center">
+                            <span class="text-sm font-bold text-blue-600">{{ item.diem }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-red-700">{{ item.yeuLoi }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-800">{{ item.phanTichGiamKhao }}</div>
+                        </td>
+                         <td class="px-6 py-4">
+                            <div class="text-sm text-green-800 bg-green-50 p-2 rounded-md">{{ item.goiYSuaDoi }}</div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- In-depth measure analysis -->
+    <div class="space-y-6">
+       <h3 class="text-xl font-bold text-gray-900 pt-4">Phân tích & Viết lại từng Biện pháp</h3>
+       @for (bp of result().phanTichBienPhap; track bp.tenBienPhap) {
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div class="p-5 bg-blue-50">
+                <h4 class="text-lg font-bold text-blue-800">{{ bp.tenBienPhap }}</h4>
+            </div>
+            
+            <!-- Side-by-side comparison -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-gray-200">
+                <!-- Original Version -->
+                <div class="bg-white p-4">
+                    <h4 class="font-semibold text-gray-500 uppercase tracking-wider text-sm mb-3">Bản gốc</h4>
+                    <div class="prose prose-sm max-w-none text-gray-700 bg-gray-50 p-3 rounded-md border border-gray-200 whitespace-pre-line">
+                        {{ bp.noiDungGoc }}
+                    </div>
+                </div>
+                
+                <!-- Proposed Version -->
+                <div class="bg-white p-4">
+                    <h4 class="font-semibold text-blue-600 uppercase tracking-wider text-sm mb-3">Bản viết lại đề xuất</h4>
+                    <div class="prose prose-sm max-w-none text-gray-800 bg-blue-50 p-3 rounded-md border border-blue-200 whitespace-pre-line">
+                        {{ bp.banVietLaiDeXuat }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis -->
+            <div class="p-5 space-y-4 border-t border-gray-200 bg-gray-50/50">
+                <div>
+                    <h5 class="font-semibold text-gray-700 flex items-center"><span class="text-xl mr-2">🔎</span> Đánh giá chuyên môn:</h5>
+                    <p class="text-gray-600 pl-7">{{ bp.danhGiaChuyenMon }}</p>
+                </div>
+                 <div>
+                    <h5 class="font-semibold text-red-700 flex items-center"><span class="text-xl mr-2">⚠️</span> Điểm yếu / Lỗi dễ bị trừ điểm:</h5>
+                    <p class="text-red-600 pl-7">{{ bp.diemYeuLoi }}</p>
+                </div>
+                 <div>
+                    <h5 class="font-semibold text-gray-700 flex items-center"><span class="text-xl mr-2">🎯</span> Góc nhìn giám khảo chấm điểm:</h5>
+                    <p class="text-gray-600 pl-7">{{ bp.gocNhinGiamKhao }}</p>
+                </div>
+                <div class="bg-green-50 p-3 rounded-md border border-green-200">
+                    <h5 class="font-semibold text-green-800 flex items-center"><span class="text-xl mr-2">✍️</span> Lý do & Gợi ý nâng cấp CỤ THỂ:</h5>
+                    <p class="text-green-700 pl-7 whitespace-pre-line">{{ bp.goiYNangCap }}</p>
+                </div>
+                <div class="bg-indigo-50 p-3 rounded-md border border-indigo-200">
+                    <h5 class="font-semibold text-indigo-800 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5.002a12.052 12.052 0 01-1.31 8.843 1.012 1.012 0 00.379 1.401l.983.615a1.01 1.01 0 001.257-.223a11.954 11.954 0 0113.064 0 1.01 1.01 0 001.257.223l.983-.615a1.012 1.012 0 00.379-1.401A12.053 12.053 0 0117.834 5.002 11.954 11.954 0 0110 1.944zM8.5 8.5a.5.5 0 01.5-.5h2a.5.5 0 010 1h-2a.5.5 0 01-.5-.5zm-1.5 3a.5.5 0 01.5-.5h5a.5.5 0 010 1h-5a.5.5 0 01-.5-.5z" clip-rule="evenodd" />
+                        </svg>
+                        Kiểm tra tính độc đáo (chống đạo văn):
+                    </h5>
+                    <p class="text-indigo-700 pl-7">{{ bp.kiemTraTrungLap }}</p>
+                </div>
+            </div>
+        </div>
+       }
+    </div>
+</div>

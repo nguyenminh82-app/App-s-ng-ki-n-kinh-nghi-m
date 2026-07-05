@@ -1,0 +1,81 @@
+
+<div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg transition-shadow hover:shadow-xl">
+  <h2 class="text-2xl font-bold text-gray-800 mb-2">Nhập liệu và Tùy chọn</h2>
+  <p class="text-gray-600 mb-6">Dán nội dung SKKN của bạn vào ô bên dưới hoặc tải lên tệp để bắt đầu phân tích.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Left Column: Input -->
+    <div>
+      <label for="skkn-content" class="block text-sm font-medium text-gray-700 mb-2">Nội dung Sáng kiến kinh nghiệm:</label>
+      <textarea id="skkn-content" name="skkn-content" rows="18"
+        [value]="skknContent()" (input)="skknContent.set($any($event.target).value)"
+        class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition-all text-sm leading-6"
+        placeholder="Dán toàn bộ nội dung SKKN của bạn vào đây..."></textarea>
+      
+      <div class="mt-4">
+        <label class="block text-sm font-medium text-gray-700">Hoặc tải lên tệp:</label>
+        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+          <div class="space-y-1 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+              <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="flex text-sm text-gray-600">
+              <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                <span>Tải lên một tệp</span>
+                <input id="file-upload" name="file-upload" type="file" class="sr-only" (change)="handleFileUpload($event)" accept=".txt,.docx">
+              </label>
+              <p class="pl-1"> (hỗ trợ .txt, .docx)</p>
+            </div>
+            @if (fileName()) {
+              <p class="text-xs text-gray-500">Đã chọn: {{ fileName() }}</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Options -->
+    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Tùy chọn Chấm điểm</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <label for="review-level" class="block text-sm font-medium text-gray-700">Cấp chấm:</label>
+          <select id="review-level" name="review-level" [(ngModel)]="reviewLevel" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+            <option value="truong">Cấp Trường</option>
+            <option value="huyen">Cấp Huyện/Quận</option>
+            <option value="tinh">Cấp Tỉnh/Thành phố</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="field" class="block text-sm font-medium text-gray-700">Lĩnh vực:</label>
+          <select id="field" name="field" [(ngModel)]="field" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+            <option value="mamnon">Mầm non</option>
+            <option value="tieuhoc">Tiểu học</option>
+            <option value="thcs">THCS</option>
+            <option value="thpt">THPT</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="scale" class="block text-sm font-medium text-gray-700">Thang điểm:</label>
+          <select id="scale" name="scale" [(ngModel)]="scale" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+            <option [ngValue]="20">20 điểm</option>
+            <option [ngValue]="100">100 điểm</option>
+          </select>
+        </div>
+
+        <div class="!mt-8 pt-6 border-t border-gray-200">
+           <button type="button" (click)="startAnalysis()" 
+            class="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 00-1-1v-.5a1.5 1.5 0 01-3 0v.5a1 1 0 00-1 1H6a1 1 0 01-1-1v-3a1 1 0 011-1h.5a1.5 1.5 0 000-3H6a1 1 0 01-1-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
+            </svg>
+            Bắt đầu Phân tích
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
